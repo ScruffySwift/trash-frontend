@@ -1,4 +1,4 @@
-var app = angular.module("app", ["ui.bootstrap", "ngRoute", "ngSanitize", "ngCookies", "angularjs-dropdown-multiselect", "ngStorage"]);
+var app = angular.module("app", [ "ngRoute", "ngCookies"]);
 
 app.config(["$routeProvider", "$locationProvider", function($routeProvider, $locationProvider) {
 
@@ -82,7 +82,8 @@ app.service('Map', function($q, $cookies) {
             map: this.map,
             position: res.position,
             animation: google.maps.Animation.DROP, 
-            url : res.url
+            //url : res.url
+            icon : res.icon
         });
         /*
         google.maps.event.addListener(this.marker, 'click', function() {

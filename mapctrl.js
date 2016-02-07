@@ -1,4 +1,4 @@
-angular.module("app").controller('mapController', ['$rootScope', '$document', 'Map', '$scope', '$location', '$cookies', '$http', '$window', function($rootScope, $document, Map, $scope, $location, $cookies, $http, $window) {
+angular.module("app").controller('mapController', ['$rootScope', '$document', 'Map', '$scope', '$location', '$cookies', '$http', '$window', '$interval', function($rootScope, $document, Map, $scope, $location, $cookies, $http, $window, $interval) {
 $scope.place = {};
 var resl;
 var marks = [];
@@ -6,16 +6,16 @@ if($rootScope.reload == true){
     $window.location.reload(true);
 }
 var message = [];
-message.push({lat: 34.056678,lon: -117.821287});
-message.push({lat: 34.057504,lon: -117.821595});
-message.push({lat: 34.056098,lon: -117.820624});
-message.push({lat: 34.056918,lon: -117.820758});
-message.push({lat: 34.057538,lon: -117.823186});
-message.push({lat: 34.056387,lon: -117.820058});
-message.push({lat: 34.056138,lon: -117.821472});
-message.push({lat: 34.057875,lon: -117.820737});
-message.push({lat: 34.057062,lon: -117.821807});
-message.push({lat: 34.055336,lon: -117.820925});
+message.push({lat: 34.056678,lon: -117.821287, name: "trash0", status : "empty"});
+message.push({lat: 34.057504,lon: -117.821595, name: "trash1", status : "empty"});
+message.push({lat: 34.056098,lon: -117.820624, name: "trash2", status : "empty"});
+message.push({lat: 34.056918,lon: -117.820758, name: "trash3", status : "empty"});
+message.push({lat: 34.057538,lon: -117.823186, name: "trash4", status : "empty"});
+message.push({lat: 34.056387,lon: -117.820058, name: "trash5", status : "empty"});
+message.push({lat: 34.056138,lon: -117.821472, name: "trash6", status : "empty"});
+message.push({lat: 34.057875,lon: -117.820737, name: "trash7", status : "empty"});
+message.push({lat: 34.057062,lon: -117.821807, name: "trash8", status : "empty"});
+message.push({lat: 34.055336,lon: -117.820925, name: "trash9", status : "empty"});
 //var message2 = $cookies.getObject('locationChoice');
 //var message3 = $cookies.getObject('locationChoice2');
 //if(message3 != undefined){var message = message2.concat(message3);}
@@ -23,6 +23,39 @@ message.push({lat: 34.055336,lon: -117.820925});
 //console.log(message);
 Map.init()
 drop();
+var pins = [];
+var empty = [];
+var full = [];
+count = 0;
+$interval(function(){
+    $http.get('/api')
+        .then(function(res){
+        //if(count == 1){
+          empty = [];
+          full = [];
+          pins = res.data;
+          //pins= [{name: "trash0", status : "full"}];
+          for(i = 0; i < pins.length; i++){
+            if(pins[i].status != message[i].status)
+            {
+                if(pins[i].status == "empty")
+                {
+                    message[i].status = "empty";
+                    empty.push(message[i]);
+                }
+                else{
+                    message[i].status = "full";
+                    full.push(message[i]);
+                }
+
+            }
+          }
+          changeToFull(full);
+          changeToEmpty(empty);
+          //} 
+          count++;     
+        });
+},10000);
 /*$scope.search = function() {
     console.log('swag'); //swaggy
     $scope.apiError = false;
@@ -83,14 +116,36 @@ $scope.send = function() {
 }
     
 function drop() {
-    var icon = 'images/2015-04-12.png';
+    var icon = 'images/Lini.png';
     for(i = 0; i < message.length; i++){
-        console.log("YASSSS");
+        //console.log("YASSSS");
         var pos = new google.maps.LatLng(message[i].lat, message[i].lon);
         res = {position : pos,
-                icon : 'images/2015-04-12.png'};
+                icon : icon};
                 //url : message[i][6],
                 //name: new google.maps.InfoWindow({ content: '<div id="content" style="color:black">' + message[i][0] + '<div> <div id="content" style="color:black">' + message[i][3] + '<div>', position : pos})};
+        marks.push(Map.addMarker(res));
+    }
+}
+
+function changeToFull(pins){
+    var icon2 = 'images/alsothisimagetooplease.gif';
+    //Map.removeMarker(pins);
+    for(i = 0; i < pins.length; i++){
+        var pos = new google.maps.LatLng(pins[i].lat, pins[i].lon);
+        res = {position : pos,
+            icon : icon2};
+        marks.push(Map.addMarker(res));
+    }
+}
+
+function changeToEmpty(pins){
+    var icon3 = 'images/Lini.png';
+    //Map.removeMarker(pins);
+    for(i = 0; i < pins.length; i++){
+        var pos = new google.maps.LatLng(pins[i].lat, pins[i].lon);
+        res = {position : pos,
+            icon : icon3};
         marks.push(Map.addMarker(res));
     }
 }
